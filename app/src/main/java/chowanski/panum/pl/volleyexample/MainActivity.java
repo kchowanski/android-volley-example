@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initSimpleRequestBtn();
         initJsonRequestBtn();
+        initGsonRequestBtn();
     }
 
     private void initSimpleRequestBtn() {
@@ -44,6 +45,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 jsonRequest();
+            }
+        });
+    }
+
+    private void initGsonRequestBtn() {
+        Button simpleRequestBtn = ((Button) findViewById(R.id.btnGsonRequest));
+        simpleRequestBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gsonRequest();
             }
         });
     }
@@ -98,5 +109,29 @@ public class MainActivity extends AppCompatActivity {
 
         // 3. Dodanie żądania na kolejkę.
         queue.add(jsonObjectRequest);
+    }
+
+    private void gsonRequest() {
+        // 1. Uzyskanie referencji do kolejki
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "https://api.github.com/users/kchowanski";
+
+        // 2. Utworzenie żądania
+        GsonRequest<GitHubUserInfo> gsonRequest = new GsonRequest<>(url, GitHubUserInfo.class,
+                new Response.Listener<GitHubUserInfo>() {
+                    @Override
+                    public void onResponse(GitHubUserInfo response) {
+                        VolleyLog.d("Witaj %s! Posiadasz %s publicznych repozytoriów!", response.getLogin(), response.getPublicRepos());
+                        VolleyLog.d("Twój identyfikator to %d! Mieszkasz w: %s", response.getId(), response.getLocation());
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e(error.getMessage());
+            }
+        });
+
+        // 3. Dodanie żądania na kolejkę.
+        queue.add(gsonRequest);
     }
 }
